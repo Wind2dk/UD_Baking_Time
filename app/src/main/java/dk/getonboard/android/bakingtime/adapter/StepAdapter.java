@@ -11,57 +11,50 @@ import android.widget.TextView;
 import java.util.List;
 
 import dk.getonboard.android.bakingtime.R;
-import dk.getonboard.android.bakingtime.model.Recipe;
+import dk.getonboard.android.bakingtime.model.Step;
 
-public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
+public class StepAdapter extends RecyclerView.Adapter<StepAdapter.ViewHolder> {
 
-    private List<Recipe> mRecipeList;
+    private List<Step> mStepList;
     final private ListItemClickListener mOnClickListener;
 
     public interface ListItemClickListener {
         void onListItemClick(int clickedItemIndex);
     }
 
-    public RecipeAdapter(List<Recipe> recipes, ListItemClickListener listener) {
-        mRecipeList = recipes;
+    public StepAdapter(List<Step> steps, ListItemClickListener listener) {
+        mStepList = steps;
         mOnClickListener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recipe_card_row_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.step_card_row_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Recipe recipe = mRecipeList.get(position);
-        holder.textViewTitle.setText(recipe.getName());
-        holder.textViewSteps.setText("Steps: " + String.valueOf(recipe.getSteps().size()));
-        holder.textViewServings.setText("Servings: " + recipe.getServings());
-        holder.textViewTime.setText("Time to make: " + recipe.getTimeInMinutes());
+        Step step = mStepList.get(position);
+        holder.textViewTitle.setText(step.getShortDescription());
     }
 
     @Override
     public int getItemCount() {
-        return mRecipeList.size();
+        return mStepList.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView imageView;
-        TextView textViewTitle, textViewSteps, textViewServings, textViewTime;
+
+        TextView textViewTitle;
 
         public ViewHolder(final View itemView) {
             super(itemView);
 
             itemView.setOnClickListener(this);
 
-            imageView = itemView.findViewById(R.id.imageView);
             textViewTitle = itemView.findViewById(R.id.textViewTitle);
-            textViewSteps = itemView.findViewById(R.id.textViewSteps);
-            textViewServings = itemView.findViewById(R.id.textViewServings);
-            textViewTime = itemView.findViewById(R.id.textViewTime);
         }
 
         @Override
