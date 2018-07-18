@@ -25,6 +25,10 @@ public class StepListFragment extends Fragment implements StepAdapter.ListItemCl
         void onStepClick(Step position);
     }
 
+    public void setSteps(List<Step> steps) {
+        mSteps = steps;
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -44,8 +48,6 @@ public class StepListFragment extends Fragment implements StepAdapter.ListItemCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_step_list, container, false);
-
-        //mSteps = StepHelper.loadSteps(getContext()); // todo how to load steps?
 
         RecyclerView recyclerView = rootView.findViewById(R.id.step_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
