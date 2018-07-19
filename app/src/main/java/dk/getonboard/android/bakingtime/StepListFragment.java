@@ -22,7 +22,7 @@ public class StepListFragment extends Fragment implements StepAdapter.ListItemCl
     OnStepClickListener mCallback;
 
     public interface OnStepClickListener {
-        void onStepClick(Step position);
+        void onStepClick(int position);
     }
 
     public void setSteps(List<Step> steps) {
@@ -59,6 +59,6 @@ public class StepListFragment extends Fragment implements StepAdapter.ListItemCl
 
     @Override
     public void onListItemClick(int clickedItemIndex) {
-        mCallback.onStepClick(mSteps.get(clickedItemIndex));
+        mCallback.onStepClick(clickedItemIndex);
     }
 }
