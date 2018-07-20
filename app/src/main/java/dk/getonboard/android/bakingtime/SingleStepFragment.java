@@ -1,8 +1,12 @@
 package dk.getonboard.android.bakingtime;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.CircularProgressDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +17,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 import java.util.List;
 
@@ -31,7 +48,7 @@ public class SingleStepFragment extends Fragment {
 
     List<Step> mSteps;
     int mStepIndex;
-    View mView;
+    SimpleExoPlayer mExoPlayer;
 
     public SingleStepFragment() {
         // Required empty public constructor
@@ -88,10 +105,12 @@ public class SingleStepFragment extends Fragment {
     private void showMedia() {
         if(!TextUtils.isEmpty(getCurrentStep().getVideoURL())) {
             // Show video and hide image view
+            playMedia();
             Toast.makeText(getContext(), "This step has video", Toast.LENGTH_SHORT).show();
             hideImageView();
         } else if(!TextUtils.isEmpty(getCurrentStep().getThumbnailUrl())) {
             // Show image and hide video
+            showImage();
             Toast.makeText(getContext(), "This step has image", Toast.LENGTH_SHORT).show();
             hidePlayerView();
         } else {
@@ -99,6 +118,30 @@ public class SingleStepFragment extends Fragment {
             hidePlayerView();
             Toast.makeText(getContext(), "No Media", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showImage() {
+        Glide
+                .with(this)
+                .load(Uri.parse(getCurrentStep().getThumbnailUrl()))
+                //.apply(new RequestOptions()
+                //.placeholder() todo: add placeholder
+                .into(mediaImageView);
+    }
+
+    private void playMedia() {
+        if (mExoPlayer == null) {
+            TrackSelector trackSelector = new DefaultTrackSelector();
+            LoadControl loadControl = new DefaultLoadControl();
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
+            mediaPlayerView.setPlayer(mExoPlayer);
+        }
+        // Prepare the MediaSource
+        String userAgent = Util.getUserAgent(getContext(), "BakingTime");
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(getCurrentStep().getVideoURL()), new DefaultDataSourceFactory(
+                getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
+        mExoPlayer.prepare(mediaSource);
+        mExoPlayer.setPlayWhenReady(true);
     }
 
     private void hideImageView() {
@@ -120,4 +163,15 @@ public class SingleStepFragment extends Fragment {
         return mSteps.get(mStepIndex);
     }
 
+    private void releasePlayer() {
+        mExoPlayer.stop();
+        mExoPlayer.release();
+        mExoPlayer = null;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releasePlayer();
+    }
 }
